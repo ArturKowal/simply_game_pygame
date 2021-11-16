@@ -1,38 +1,50 @@
-import pygame
+import pygame,sys
 from pygame import Vector2
-import sys
+from player import Player
 
-pygame.init()
-screen=pygame.display.set_mode((1280,720)) #1280,720
-box=[10,10,50,50]
-clock=pygame.time.Clock()
-delta=0.0
+class Game(object):
+	""" class Game """
+	def __init__(self):
+		# Config
+		self.max_tps=150.0
 
-while True:
-	# Handle events
-	for event in pygame.event.get():
-		if event.type == pygame.QUIT:
-			sys.exit(0)
-		if event.type ==pygame.KEYDOWN and event.key==pygame.K_ESCAPE:
-			sys.exit(0)
+		# Init
+		pygame.init()
+		self.screen=pygame.display.set_mode((950,534)) #1280/1.5,720/1.5
+		bg = pygame.image.load("background.png")
+		self.tps_clock=pygame.time.Clock()
+		self.tps_delta=0.0
+		self.player = Player(self)
 
-	#Ticking
-	delta+=clock.tick()/1000.0
-	
+		while True:
+			# Handle events
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT:
+					sys.exit(0)
+				elif event.type ==pygame.KEYDOWN and event.key==pygame.K_ESCAPE:
+					sys.exit(0)
 
-	#Input
-	keys=pygame.key.get_pressed()
-	if keys[pygame.K_d]:
-		box[0]+=1
-	if keys[pygame.K_s]:
-		box[1]+=1
-	if keys[pygame.K_a]:
-		box[0]-=1
-	if keys[pygame.K_w]:
-		box[1]-=1
+			# Ticking
+			self.tps_delta+=self.tps_clock.tick()/1000.0
+			while self.tps_delta > 1 /self.max_tps:
+				self.tick()
+				self.tps_delta -=1/self.max_tps
 
-	# Draving
-	screen.fill((0,0,0))
-	#pygame.draw.polygon(screen, (50,100,150),  (Vector2(-60,-60),Vector2(60,-60),Vector2(60,60),Vector2(0,80),Vector2(-60,60)))
-	pygame.draw.rect(screen, (150,80,200),box, border_radius=15)
-	pygame.display.flip()
+			# Draving
+			#self.screen.fill((0,0,0))
+			self.screen.blit(bg, (0, 0))
+			self.draw()
+			pygame.display.flip()
+
+					
+
+	def tick(self):
+		# Checking inputs
+		#keys=pygame.key.get_pressed()
+		self.player.tick()
+
+	def draw(self):
+		self.player.draw()
+
+if __name__=="__main__":
+	Game()
