@@ -5,7 +5,7 @@ from pygame.locals import *
 
 class Player(pygame.sprite.Sprite):
 	"""docstring for Player"""
-	def __init__(self, x, y, game, health):
+	def __init__(self, x, y, game, health, enemy_group, enemyAmmo_group):
 		pygame.sprite.Sprite.__init__(self)
 		self.picture = pygame.image.load('img/player.png')
 		self.image = pygame.transform.scale(self.picture, (80,110))
@@ -16,29 +16,32 @@ class Player(pygame.sprite.Sprite):
 		self.health=health
 		self.health_cur= health
 		self.last_shot = pygame.time.get_ticks()
+		self.enemy_group = enemy_group
+		self.enemyAmmo_group = enemyAmmo_group
 
 	def update(self):
 		speed = 6
-		cooldown = 400
+		cooldown = 500
 		pressed=pygame.key.get_pressed()
 		if (pressed[pygame.K_d] or pressed[pygame.K_RIGHT]) and self.rect.left<self.size[0]-100:
 			self.rect.x +=speed
 		if (pressed[pygame.K_a] or pressed[pygame.K_LEFT]) and self.rect.right>100:
 			self.rect.x -=speed
 
-		time_now = pygame.time.get_ticks() 
+		time_now = pygame.time.get_ticks()
 		if pressed[pygame.K_SPACE] and time_now - self.last_shot > cooldown:
-			bullet = Ammo(self.rect.centerx,self.rect.top)
+			bullet = Ammo(self.rect.centerx,self.rect.top, self.enemy_group, self.enemyAmmo_group)
 			self.game.bullet_group.add(bullet)
 			self.last_shot = time_now
+
+		# mask
+		self.mask = pygame.mask.from_surface(self.image)
 
 		# draw health bar
 		pygame.draw.rect(self.game.screen, (250,10,20), (self.rect.x, (self.rect.bottom + 2), self.rect.width, 10))
 		if self.health_cur > 0:
 			pygame.draw.rect(self.game.screen, (10,250,20), (self.rect.x, (self.rect.bottom + 2), int(self.rect.width * (self.health_cur / self.health)), 10))
 		
-
-
 
 
 
